@@ -3,146 +3,130 @@
     <h1>Catálogos</h1>
     <p>Listas reutilizables, jerarquías e importación desde CSV o Excel.</p>
   </div>
-  <button mat-flat-button color="primary" (click)="abrirNuevoCatalogo()" *hasPermission="'Catalogos.Crear'">
+  <button mat-flat-button color="primary" (click)="abrirCatalogo()" *hasPermission="'Catalogos.Crear'">
     <mat-icon>add</mat-icon>
     Nuevo catálogo
   </button>
 </div>
 
-@if (nuevoCatalogo()) {
-  <mat-card class="detalle">
+<div class="rejilla" [class.con-detalle]="seleccionado()">
+  <mat-card appearance="outlined" class="listado">
     <mat-card-header>
-      <mat-card-title>{{ editandoCatalogo() ? 'Editar catálogo' : 'Nuevo catálogo' }}</mat-card-title>
+      <mat-card-title>Catálogos</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <mat-form-field appearance="outline" class="completo">
-        <mat-label>Nombre</mat-label>
-        <input matInput [ngModel]="nombreCatalogo()" (ngModelChange)="nombreCatalogo.set($event)" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="completo">
-        <mat-label>Descripción</mat-label>
-        <input matInput [ngModel]="descripcionCatalogo()" (ngModelChange)="descripcionCatalogo.set($event)" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="completo">
-        <mat-label>Catálogo padre (Id)</mat-label>
-        <input matInput [ngModel]="padreCatalogoId()" (ngModelChange)="padreCatalogoId.set($event)" />
-      </mat-form-field>
-      <mat-checkbox [checked]="activoCatalogo()" (change)="activoCatalogo.set($event.checked)">Activo</mat-checkbox>
-      <div class="acciones">
-        <button mat-stroked-button (click)="nuevoCatalogo.set(false)">Cancelar</button>
-        <button mat-flat-button color="primary" (click)="guardarCatalogo()" [disabled]="guardandoCatalogo()">Guardar</button>
-      </div>
+      @if (cargando()) {
+        <div class="cargando"><mat-spinner diameter="36" /></div>
+      } @else {
+        <div class="tabla-contenedor">
+          <table mat-table [dataSource]="catalogos()" class="tabla-completa">
+            <ng-container matColumnDef="nombre">
+              <th mat-header-cell *matHeaderCellDef>Catálogo</th>
+              <td mat-cell *matCellDef="let catalogo">
+                <strong>{{ catalogo.nombre }}</strong>
+                @if (!catalogo.activo) { <span class="etiqueta">Inactivo</span> }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="items">
+              <th mat-header-cell *matHeaderCellDef>Ítems</th>
+              <td mat-cell *matCellDef="let catalogo">{{ catalogo.cantidadItems }}</td>
+            </ng-container>
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let catalogo">
+                <button mat-stroked-button (click)="ver(catalogo)">
+                  <mat-icon>list</mat-icon>
+                  Ver ítems
+                </button>
+                <button mat-icon-button (click)="abrirCatalogo(catalogo)" *hasPermission="'Catalogos.Editar'">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="eliminarCatalogo(catalogo)" *hasPermission="'Catalogos.Eliminar'">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+            <tr mat-row *matRowDef="let fila; columns: columnas"></tr>
+          </table>
+          @if (catalogos().length === 0) {
+            <p class="vacio">No hay catálogos registrados.</p>
+          }
+        </div>
+      }
     </mat-card-content>
-  </mat-card>
-}
-
-<div class="rejilla">
-  <mat-card appearance="outlined">
-    @if (cargando()) {
-      <div class="cargando"><mat-spinner diameter="36" /></div>
-    } @else {
-      <table mat-table [dataSource]="catalogos()" class="tabla-completa">
-        <ng-container matColumnDef="nombre">
-          <th mat-header-cell *matHeaderCellDef>Catálogo</th>
-          <td mat-cell *matCellDef="let catalogo">
-            <strong>{{ catalogo.nombre }}</strong>
-            @if (!catalogo.activo) { <span class="etiqueta">Inactivo</span> }
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="items">
-          <th mat-header-cell *matHeaderCellDef>Ítems</th>
-          <td mat-cell *matCellDef="let catalogo">{{ catalogo.cantidadItems }}</td>
-        </ng-container>
-        <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
-          <td mat-cell *matCellDef="let catalogo">
-            <button mat-stroked-button (click)="ver(catalogo)">Ver ítems</button>
-            <button mat-icon-button (click)="editarCatalogo(catalogo)" *hasPermission="'Catalogos.Editar'"><mat-icon>edit</mat-icon></button>
-            <button mat-icon-button (click)="eliminarCatalogo(catalogo)" *hasPermission="'Catalogos.Eliminar'"><mat-icon>delete</mat-icon></button>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-        <tr mat-row *matRowDef="let fila; columns: columnas"></tr>
-      </table>
-      @if (catalogos().length === 0) { <p class="vacio">No hay catálogos registrados.</p> }
-    }
   </mat-card>
 
   @if (seleccionado(); as catalogo) {
     <mat-card appearance="outlined" class="detalle">
-      <mat-card-header><mat-card-title>{{ catalogo.nombre }}</mat-card-title></mat-card-header>
+      <mat-card-header>
+        <mat-card-title>{{ catalogo.nombre }}</mat-card-title>
+        <mat-card-subtitle>{{ catalogo.descripcion || 'Sin descripción' }}</mat-card-subtitle>
+      </mat-card-header>
       <mat-card-content>
-        @if (catalogo.descripcion) { <p>{{ catalogo.descripcion }}</p> }
-
         <div class="acciones">
-          <button mat-stroked-button (click)="abrirNuevoItem()" *hasPermission="'Catalogos.Editar'">
+          <button mat-flat-button color="primary" (click)="abrirItem()" *hasPermission="'Catalogos.Editar'">
             <mat-icon>add</mat-icon>
             Nuevo ítem
           </button>
         </div>
 
-        @if (nuevoItem()) {
-          <div class="item-form">
-            <mat-form-field appearance="outline">
-              <mat-label>Código</mat-label>
-              <input matInput [ngModel]="codigoItem()" (ngModelChange)="codigoItem.set($event)" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Texto</mat-label>
-              <input matInput [ngModel]="textoItem()" (ngModelChange)="textoItem.set($event)" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Orden</mat-label>
-              <input matInput type="number" [ngModel]="ordenItem()" (ngModelChange)="ordenItem.set(+$event)" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Padre (Id)</mat-label>
-              <input matInput [ngModel]="padreItemId()" (ngModelChange)="padreItemId.set($event)" />
-            </mat-form-field>
-            <mat-checkbox [checked]="activoItem()" (change)="activoItem.set($event.checked)">Activo</mat-checkbox>
-            <div class="acciones">
-              <button mat-stroked-button (click)="nuevoItem.set(false)">Cancelar</button>
-              <button mat-flat-button color="primary" (click)="guardarItem()" [disabled]="guardandoItem()">Guardar</button>
-            </div>
-          </div>
-        }
-
-        <table mat-table [dataSource]="catalogo.items" class="tabla-completa">
-          <ng-container matColumnDef="codigo">
-            <th mat-header-cell *matHeaderCellDef>Código</th>
-            <td mat-cell *matCellDef="let item">{{ item.codigo }}</td>
-          </ng-container>
-          <ng-container matColumnDef="texto">
-            <th mat-header-cell *matHeaderCellDef>Texto</th>
-            <td mat-cell *matCellDef="let item">{{ item.texto }}</td>
-          </ng-container>
-          <ng-container matColumnDef="orden">
-            <th mat-header-cell *matHeaderCellDef>Orden</th>
-            <td mat-cell *matCellDef="let item">{{ item.orden }}</td>
-          </ng-container>
-          <ng-container matColumnDef="padre">
-            <th mat-header-cell *matHeaderCellDef>Padre</th>
-            <td mat-cell *matCellDef="let item">{{ item.padreItemId ? 'Sí' : '-' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="itemAcciones">
-            <th mat-header-cell *matHeaderCellDef>Acciones</th>
-            <td mat-cell *matCellDef="let item">
-              <button mat-icon-button (click)="editarItem(item)" *hasPermission="'Catalogos.Editar'"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button (click)="eliminarItem(item)" *hasPermission="'Catalogos.Eliminar'"><mat-icon>delete</mat-icon></button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="['codigo', 'texto', 'orden', 'padre', 'itemAcciones']"></tr>
-          <tr mat-row *matRowDef="let fila; columns: ['codigo', 'texto', 'orden', 'padre', 'itemAcciones']"></tr>
-        </table>
+        <div class="tabla-contenedor">
+          <table mat-table [dataSource]="catalogo.items" class="tabla-completa">
+            <ng-container matColumnDef="codigo">
+              <th mat-header-cell *matHeaderCellDef>Código</th>
+              <td mat-cell *matCellDef="let item">{{ item.codigo }}</td>
+            </ng-container>
+            <ng-container matColumnDef="texto">
+              <th mat-header-cell *matHeaderCellDef>Texto</th>
+              <td mat-cell *matCellDef="let item">{{ item.texto }}</td>
+            </ng-container>
+            <ng-container matColumnDef="orden">
+              <th mat-header-cell *matHeaderCellDef>Orden</th>
+              <td mat-cell *matCellDef="let item">{{ item.orden }}</td>
+            </ng-container>
+            <ng-container matColumnDef="padre">
+              <th mat-header-cell *matHeaderCellDef>Padre</th>
+              <td mat-cell *matCellDef="let item">{{ item.padreItemId ? 'Sí' : '-' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="itemAcciones">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let item">
+                <button mat-icon-button (click)="abrirItem(item)" *hasPermission="'Catalogos.Editar'">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="eliminarItem(item)" *hasPermission="'Catalogos.Eliminar'">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['codigo', 'texto', 'orden', 'padre', 'itemAcciones']"></tr>
+            <tr mat-row *matRowDef="let fila; columns: ['codigo', 'texto', 'orden', 'padre', 'itemAcciones']"></tr>
+          </table>
+          @if (catalogo.items.length === 0) {
+            <p class="vacio">Este catálogo aún no tiene ítems.</p>
+          }
+        </div>
 
         <div class="importar" *hasPermission="'Catalogos.Editar'">
+          <div class="importar-titulo">
+            <mat-icon>upload_file</mat-icon>
+            <span>Importar ítems</span>
+          </div>
           <input type="file" accept=".csv,.xlsx" (change)="alSeleccionarArchivo($event)" />
+          <button mat-stroked-button type="button" (click)="descargarPlantilla()">
+            <mat-icon>download</mat-icon>
+            Descargar plantilla
+          </button>
+          <span class="importar-hint">
+            Columnas: Codigo, Texto, Orden (opcional) y PadreItemCodigo (opcional; usa el código del ítem padre).
+          </span>
           <mat-checkbox [checked]="reemplazar()" (change)="reemplazar.set($event.checked)">
             Reemplazar (desactiva lo que no aparece)
           </mat-checkbox>
           <button mat-flat-button color="primary" type="button" [disabled]="importando()" (click)="importar()">
             <mat-icon>upload_file</mat-icon>
-            {{ importando() ? 'Importando.' : 'Importar' }}
+            {{ importando() ? 'Importando…' : 'Importar' }}
           </button>
           @if (archivo()) { <span class="archivo">{{ archivo()?.name }}</span> }
         </div>

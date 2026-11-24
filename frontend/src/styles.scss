@@ -142,6 +142,12 @@ h4 {
   box-shadow: var(--gf-shadow-card) !important;
 }
 
+.mat-mdc-dialog-surface {
+  border-radius: var(--gf-radio) !important;
+  border: 1px solid var(--gf-border);
+  box-shadow: var(--gf-shadow-header) !important;
+}
+
 .mat-mdc-raised-button,
 .mat-mdc-flat-button {
   border-radius: 0.5rem !important;

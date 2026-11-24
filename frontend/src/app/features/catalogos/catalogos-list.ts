@@ -1,11 +1,9 @@
 ﻿import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
@@ -19,18 +17,23 @@ import { ApiErrorService } from '../../core/services/api-error.service';
 import { CatalogosService } from '../../core/services/catalogos.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
+import {
+  CatalogoDialogComponent,
+  CatalogoDialogResult,
+} from './catalogo-dialog';
+import {
+  CatalogoItemDialogComponent,
+  CatalogoItemDialogResult,
+} from './catalogo-item-dialog';
 
 @Component({
   selector: 'app-catalogos-list',
   standalone: true,
   imports: [
-    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatProgressSpinnerModule,
     MatTableModule,
     HasPermissionDirective,
@@ -43,6 +46,7 @@ export class CatalogosListComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly errores = inject(ApiErrorService);
   private readonly dialog = inject(DialogService);
+  private readonly matDialog = inject(MatDialog);
 
   readonly columnas = ['nombre', 'items', 'acciones'];
   readonly catalogos = signal<CatalogoResumenDto[]>([]);
@@ -51,23 +55,6 @@ export class CatalogosListComponent implements OnInit {
   readonly reemplazar = signal(false);
   readonly cargando = signal(true);
   readonly importando = signal(false);
-
-  readonly editandoCatalogo = signal<CatalogoResumenDto | null>(null);
-  readonly nuevoCatalogo = signal(false);
-  readonly nombreCatalogo = signal('');
-  readonly descripcionCatalogo = signal('');
-  readonly activoCatalogo = signal(true);
-  readonly padreCatalogoId = signal('');
-  readonly guardandoCatalogo = signal(false);
-
-  readonly editandoItem = signal<CatalogoItemDto | null>(null);
-  readonly nuevoItem = signal(false);
-  readonly codigoItem = signal('');
-  readonly textoItem = signal('');
-  readonly ordenItem = signal(0);
-  readonly activoItem = signal(true);
-  readonly padreItemId = signal('');
-  readonly guardandoItem = signal(false);
 
   ngOnInit(): void {
     this.cargar();
@@ -91,50 +78,27 @@ export class CatalogosListComponent implements OnInit {
     });
   }
 
-  abrirNuevoCatalogo(): void {
-    this.editandoCatalogo.set(null);
-    this.nuevoCatalogo.set(true);
-    this.nombreCatalogo.set('');
-    this.descripcionCatalogo.set('');
-    this.activoCatalogo.set(true);
-    this.padreCatalogoId.set('');
-  }
-
-  editarCatalogo(catalogo: CatalogoResumenDto): void {
-    this.editandoCatalogo.set(catalogo);
-    this.nuevoCatalogo.set(true);
-    this.nombreCatalogo.set(catalogo.nombre);
-    this.descripcionCatalogo.set(catalogo.descripcion ?? '');
-    this.activoCatalogo.set(catalogo.activo);
-    this.padreCatalogoId.set(catalogo.catalogoPadreId ?? '');
-  }
-
-  guardarCatalogo(): void {
-    const nombre = this.nombreCatalogo().trim();
-    if (!nombre) {
-      this.snackBar.open('El nombre del catálogo es obligatorio.', 'Cerrar', { duration: 4000 });
-      return;
-    }
-    const request = {
-      nombre,
-      descripcion: this.descripcionCatalogo().trim() || null,
-      activo: this.activoCatalogo(),
-      catalogoPadreId: this.padreCatalogoId() || null,
-    };
-    this.guardandoCatalogo.set(true);
-    const operacion = this.editandoCatalogo()
-      ? this.service.update(this.editandoCatalogo()!.id, request)
-      : this.service.create(request);
-    operacion.pipe(finalize(() => this.guardandoCatalogo.set(false))).subscribe({
-      next: (detalle) => {
-        this.snackBar.open('Catálogo guardado.', 'Cerrar', { duration: 4000 });
-        this.nuevoCatalogo.set(false);
-        this.editandoCatalogo.set(null);
-        this.cargar();
-        this.seleccionado.set(detalle);
-      },
-      error: (error) => this.snackBar.open(this.errores.mensaje(error), 'Cerrar', { duration: 7000 }),
-    });
+  abrirCatalogo(catalogo?: CatalogoResumenDto): void {
+    this.matDialog
+      .open<CatalogoDialogComponent, { catalogo?: CatalogoResumenDto }, CatalogoDialogResult>(
+        CatalogoDialogComponent,
+        { data: { catalogo }, width: '30rem', maxWidth: 'calc(100vw - 2rem)' },
+      )
+      .afterClosed()
+      .subscribe((resultado) => {
+        if (!resultado) return;
+        const operacion = catalogo
+          ? this.service.update(catalogo.id, resultado)
+          : this.service.create(resultado);
+        operacion.subscribe({
+          next: (detalle) => {
+            this.snackBar.open('Catálogo guardado.', 'Cerrar', { duration: 4000 });
+            this.cargar();
+            this.seleccionado.set(detalle);
+          },
+          error: (error) => this.snackBar.open(this.errores.mensaje(error), 'Cerrar', { duration: 7000 }),
+        });
+      });
   }
 
   eliminarCatalogo(catalogo: CatalogoResumenDto): void {
@@ -155,55 +119,28 @@ export class CatalogosListComponent implements OnInit {
     });
   }
 
-  abrirNuevoItem(): void {
-    this.editandoItem.set(null);
-    this.nuevoItem.set(true);
-    this.codigoItem.set('');
-    this.textoItem.set('');
-    this.ordenItem.set(0);
-    this.activoItem.set(true);
-    this.padreItemId.set('');
-  }
-
-  editarItem(item: CatalogoItemDto): void {
-    this.editandoItem.set(item);
-    this.nuevoItem.set(true);
-    this.codigoItem.set(item.codigo);
-    this.textoItem.set(item.texto);
-    this.ordenItem.set(item.orden);
-    this.activoItem.set(item.activo);
-    this.padreItemId.set(item.padreItemId ?? '');
-  }
-
-  guardarItem(): void {
+  abrirItem(item?: CatalogoItemDto): void {
     const catalogo = this.seleccionado();
     if (!catalogo) return;
-    const codigo = this.codigoItem().trim();
-    const texto = this.textoItem().trim();
-    if (!codigo || !texto) {
-      this.snackBar.open('Código y texto son obligatorios.', 'Cerrar', { duration: 4000 });
-      return;
-    }
-    const request = {
-      codigo,
-      texto,
-      orden: this.ordenItem(),
-      activo: this.activoItem(),
-      padreItemId: this.padreItemId() || null,
-    };
-    this.guardandoItem.set(true);
-    const operacion = this.editandoItem()
-      ? this.service.updateItem(this.editandoItem()!.id, request)
-      : this.service.createItem(catalogo.id, request);
-    operacion.pipe(finalize(() => this.guardandoItem.set(false))).subscribe({
-      next: () => {
-        this.snackBar.open('Ítem guardado.', 'Cerrar', { duration: 4000 });
-        this.nuevoItem.set(false);
-        this.editandoItem.set(null);
-        this.ver(catalogo as unknown as CatalogoResumenDto);
-      },
-      error: (error) => this.snackBar.open(this.errores.mensaje(error), 'Cerrar', { duration: 7000 }),
-    });
+    this.matDialog
+      .open<CatalogoItemDialogComponent, { item?: CatalogoItemDto }, CatalogoItemDialogResult>(
+        CatalogoItemDialogComponent,
+        { data: { item }, width: '30rem', maxWidth: 'calc(100vw - 2rem)' },
+      )
+      .afterClosed()
+      .subscribe((resultado) => {
+        if (!resultado) return;
+        const operacion = item
+          ? this.service.updateItem(item.id, resultado)
+          : this.service.createItem(catalogo.id, resultado);
+        operacion.subscribe({
+          next: () => {
+            this.snackBar.open('Ítem guardado.', 'Cerrar', { duration: 4000 });
+            this.ver(catalogo);
+          },
+          error: (error) => this.snackBar.open(this.errores.mensaje(error), 'Cerrar', { duration: 7000 }),
+        });
+      });
   }
 
   eliminarItem(item: CatalogoItemDto): void {
@@ -227,6 +164,16 @@ export class CatalogosListComponent implements OnInit {
   alSeleccionarArchivo(evento: Event): void {
     const entrada = evento.target as HTMLInputElement;
     this.archivo.set(entrada.files?.item(0) ?? null);
+  }
+
+  descargarPlantilla(): void {
+    const contenido = '\uFEFFCodigo,Texto,Orden,PadreItemCodigo\r\n';
+    const url = URL.createObjectURL(new Blob([contenido], { type: 'text/csv;charset=utf-8' }));
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = 'plantilla-catalogo.csv';
+    enlace.click();
+    URL.revokeObjectURL(url);
   }
 
   importar(): void {

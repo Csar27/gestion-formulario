@@ -63,12 +63,7 @@
 
   .formulario-campos {
     display: grid;
-    gap: 4px;
-  }
-
-  .mat-mdc-form-field {
-    margin: 0 !important;
-    --mat-form-field-container-vertical-padding: 0;
+    gap: 1rem;
   }
 
   .mat-mdc-card-content {

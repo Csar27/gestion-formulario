@@ -12,30 +12,10 @@
             [routerLink]="item.ruta"
             routerLinkActive="activo"
             [routerLinkActiveOptions]="{ exact: false }"
-            (click)="item.submenu && alternarSubmenu()"
           >
             <mat-icon matListItemIcon>{{ item.icono }}</mat-icon>
             <span matListItemTitle>{{ item.etiqueta }}</span>
-            @if (item.submenu) {
-              <mat-icon matListItemMeta>{{ submenuAbierto() ? 'expand_less' : 'expand_more' }}</mat-icon>
-            }
           </a>
-          @if (item.submenu && submenuAbierto()) {
-            <mat-nav-list class="submenu">
-              @for (formulario of formulariosMenu(); track formulario.id) {
-                <a
-                  mat-list-item
-                  [routerLink]="['/app/mis-formularios', formulario.id, 'llenar']"
-                  routerLinkActive="activo"
-                >
-                  <mat-icon matListItemIcon>note</mat-icon>
-                  <span matListItemTitle>{{ formulario.nombre }}</span>
-                </a>
-              } @empty {
-                <div class="vacio-submenu">Sin formularios asignados</div>
-              }
-            </mat-nav-list>
-          }
         }
       }
     </mat-nav-list>

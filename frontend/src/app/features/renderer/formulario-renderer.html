@@ -1,0 +1,93 @@
+﻿<div class="cabecera">
+  <div>
+    <h1>{{ esVistaPrevia ? 'Vista previa' : (soloLectura ? 'Formulario diligenciado' : 'Diligenciar formulario') }}</h1>
+    <p>{{ formulario()?.nombre ?? 'Cargando…' }}</p>
+  </div>
+  <button mat-stroked-button type="button" (click)="volver()">Volver</button>
+</div>
+
+@if (esVistaPrevia) {
+  <div class="aviso">
+    <mat-icon>visibility</mat-icon>
+    <span>Estás viendo el formulario tal como lo verán los usuarios. No se guarda información.</span>
+  </div>
+}
+
+@if (soloLectura) {
+  <div class="aviso">
+    <mat-icon>lock</mat-icon>
+    <span>Vista de solo lectura. Los valores mostrados son los guardados en la respuesta.</span>
+  </div>
+}
+
+@if (cargando()) {
+  <div class="cargando"><mat-spinner diameter="40" /></div>
+} @else if (formulario(); as f) {
+  <form [formGroup]="form">
+    @if (f.esPasoAPaso && !esVistaPrevia) {
+      <mat-stepper linear class="stepper">
+        @for (s of f.secciones; let i = $index; track s.id) {
+          <mat-step [stepControl]="seccion(i)" [label]="s.titulo">
+            <div class="paso" [formGroup]="seccion(i)">
+              @for (campo of s.campos; track campo.id) {
+                <app-campo-renderer
+                  [campo]="campo"
+                  [control]="control(i, campo)"
+                  [opciones]="opciones(campo.id)"
+                />
+              } @empty {
+                <p class="vacio">Esta sección no tiene campos.</p>
+              }
+            </div>
+            <div class="acciones-paso">
+              @if (i > 0) {
+                <button mat-button type="button" matStepperPrevious>Anterior</button>
+              }
+              <span class="espaciador"></span>
+              @if (i < f.secciones.length - 1 && !soloLectura) {
+                <button mat-stroked-button type="button" matStepperNext (click)="guardarBorrador(s.id)">
+                  Guardar y continuar
+                </button>
+              } @else if (!soloLectura) {
+                <button mat-flat-button color="primary" type="button" (click)="finalizar()" [disabled]="guardando()">
+                  Finalizar
+                </button>
+              }
+            </div>
+          </mat-step>
+        }
+      </mat-stepper>
+    } @else {
+      <div formArrayName="secciones">
+        @for (s of f.secciones; let i = $index; track s.id) {
+          <mat-card appearance="outlined" class="bloque" [formGroupName]="i">
+            <mat-card-header><mat-card-title>{{ s.titulo }}</mat-card-title></mat-card-header>
+            <mat-card-content class="campos">
+              @for (campo of s.campos; track campo.id) {
+                <app-campo-renderer
+                  [campo]="campo"
+                  [control]="control(i, campo)"
+                  [opciones]="opciones(campo.id)"
+                />
+              } @empty {
+                <p class="vacio">Esta sección no tiene campos.</p>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+
+      @if (!esVistaPrevia && !soloLectura) {
+        <div class="acciones-finales">
+          <button mat-stroked-button type="button" (click)="guardarBorrador()" [disabled]="guardando()">
+            <mat-icon>save</mat-icon> Guardar borrador
+          </button>
+          <button mat-flat-button color="primary" type="button" (click)="finalizar()" [disabled]="guardando()">
+            Finalizar
+          </button>
+        </div>
+      }
+    }
+  </form>
+}
+

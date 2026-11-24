@@ -1,0 +1,83 @@
+<section class="usuarios">
+  <header class="usuarios__encabezado">
+    <div>
+      <h1>Usuarios</h1>
+      <p>Administración de usuarios y asignación de roles.</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="abrirNuevo()" *hasPermission="'Usuarios.Crear'">
+      <mat-icon>add</mat-icon>
+      Nuevo usuario
+    </button>
+  </header>
+
+  @if (nuevo()) {
+    <mat-card class="formulario">
+      <mat-card-header><mat-card-title>{{ editando() ? 'Editar usuario' : 'Nuevo usuario' }}</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="completo">
+          <mat-label>Correo</mat-label>
+          <input matInput type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="completo">
+          <mat-label>Nombre completo</mat-label>
+          <input matInput [ngModel]="nombre()" (ngModelChange)="nombre.set($event)" />
+        </mat-form-field>
+        @if (!editando()) {
+          <mat-form-field appearance="outline" class="completo">
+            <mat-label>Contraseña</mat-label>
+            <input matInput type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" />
+          </mat-form-field>
+        }
+        @if (editando()) {
+          <mat-checkbox [checked]="activo()" (change)="activo.set($event.checked)">Activo</mat-checkbox>
+        }
+        <div class="roles">
+          @for (rol of roles(); track rol.id) {
+            <mat-checkbox [checked]="rolesSeleccionados().has(rol.nombre)" (change)="alternarRol(rol.nombre, $event.checked)">
+              {{ rol.nombre }}
+            </mat-checkbox>
+          }
+        </div>
+        <div class="acciones">
+          <button mat-stroked-button (click)="nuevo.set(false)">Cancelar</button>
+          <button mat-flat-button color="primary" (click)="guardar()" [disabled]="guardando()">Guardar</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card>
+    @if (cargando()) {
+      <div class="cargando"><mat-spinner diameter="36" /></div>
+    } @else {
+      <table mat-table [dataSource]="usuarios()" class="tabla">
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Correo</th>
+          <td mat-cell *matCellDef="let usuario">{{ usuario.email }}</td>
+        </ng-container>
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let usuario">{{ usuario.nombreCompleto }}</td>
+        </ng-container>
+        <ng-container matColumnDef="roles">
+          <th mat-header-cell *matHeaderCellDef>Roles</th>
+          <td mat-cell *matCellDef="let usuario">{{ usuario.roles.join(', ') || '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let usuario">{{ usuario.activo ? 'Activo' : 'Inactivo' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let usuario">
+            <button mat-icon-button (click)="editar(usuario)" *hasPermission="'Usuarios.Editar'"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button (click)="eliminar(usuario)" *hasPermission="'Usuarios.Eliminar'"><mat-icon>delete</mat-icon></button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let fila; columns: columnas"></tr>
+      </table>
+      <mat-paginator [length]="total()" [pageSize]="tamano()" [pageIndex]="pagina() - 1" [pageSizeOptions]="[10, 20, 50]" (page)="cambiarPagina($event)"></mat-paginator>
+    }
+  </mat-card>
+</section>

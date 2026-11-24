@@ -1,0 +1,102 @@
+<section class="roles">
+  <header class="roles__encabezado">
+    <div>
+      <h1>Roles y permisos</h1>
+      <p>Administra roles del sistema y asigna permisos por módulo.</p>
+    </div>
+  </header>
+
+  <div class="roles__grid">
+    <mat-card class="roles__lista">
+      @if (cargando()) {
+        <div class="cargando"><mat-spinner diameter="36" /></div>
+      } @else {
+        <table mat-table [dataSource]="roles()" class="tabla">
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let rol">{{ rol.nombre }}</td>
+          </ng-container>
+          <ng-container matColumnDef="descripcion">
+            <th mat-header-cell *matHeaderCellDef>Descripción</th>
+            <td mat-cell *matCellDef="let rol">{{ rol.descripcion ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="sistema">
+            <th mat-header-cell *matHeaderCellDef>Sistema</th>
+            <td mat-cell *matCellDef="let rol">{{ rol.esSistema ? 'Sí' : 'No' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let rol">
+              <button mat-icon-button (click)="seleccionar(rol)" title="Editar"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button (click)="eliminar(rol)" title="Eliminar" [disabled]="rol.esSistema"><mat-icon>delete</mat-icon></button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+          <tr mat-row *matRowDef="let rol; columns: columnas;"></tr>
+        </table>
+      }
+    </mat-card>
+
+    <div class="roles__formularios">
+      @if (seleccionado()) {
+        <button mat-stroked-button (click)="seleccionado.set(null)">Nuevo rol</button>
+      }
+      @if (!seleccionado()) {
+      <mat-card>
+        <mat-card-header><mat-card-title>Nuevo rol</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="completo">
+            <mat-label>Nombre</mat-label>
+            <input matInput [ngModel]="nuevoNombre()" (ngModelChange)="nuevoNombre.set($event)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="completo">
+            <mat-label>Descripción</mat-label>
+            <input matInput [ngModel]="nuevaDescripcion()" (ngModelChange)="nuevaDescripcion.set($event)" />
+          </mat-form-field>
+          <div class="permisos">
+            @for (grupo of permisosAgrupados(); track grupo[0]) {
+              <div class="grupo">
+                <strong>{{ grupo[0] }}</strong>
+                @for (permiso of grupo[1]; track permiso.id) {
+                  <mat-checkbox [checked]="tienePermiso(nuevosPermisos(), permiso.codigo)" (change)="alternarPermisoNuevo(permiso.codigo, $event.checked)">
+                    {{ permiso.accion }}
+                  </mat-checkbox>
+                }
+              </div>
+            }
+          </div>
+          <button mat-flat-button color="primary" (click)="crear()">Crear rol</button>
+        </mat-card-content>
+      </mat-card>
+
+      }
+
+      @if (seleccionado(); as rol) {
+        <mat-card>
+          <mat-card-header><mat-card-title>Editar: {{ rol.nombre }}</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="completo">
+              <mat-label>Descripción</mat-label>
+              <input matInput [ngModel]="descripcionEdicion()" (ngModelChange)="descripcionEdicion.set($event)" />
+            </mat-form-field>
+            <button mat-stroked-button (click)="guardarDescripcion()">Guardar descripción</button>
+
+            <div class="permisos">
+              @for (grupo of permisosAgrupados(); track grupo[0]) {
+                <div class="grupo">
+                  <strong>{{ grupo[0] }}</strong>
+                  @for (permiso of grupo[1]; track permiso.id) {
+                    <mat-checkbox [checked]="tienePermiso(permisosEdicion(), permiso.codigo)" (change)="alternarPermisoEdicion(permiso.codigo, $event.checked)">
+                      {{ permiso.accion }}
+                    </mat-checkbox>
+                  }
+                </div>
+              }
+            </div>
+            <button mat-flat-button color="primary" (click)="guardarPermisos()">Guardar permisos</button>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </div>
+</section>

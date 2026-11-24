@@ -1,0 +1,33 @@
+<section class="mis-productos">
+  <header class="mis-productos__encabezado">
+    <div>
+      <h1>Mis productos</h1>
+      <p>Selecciona un producto para diligenciar su formulario.</p>
+    </div>
+  </header>
+
+  @if (cargando()) {
+    <div class="cargando"><mat-spinner diameter="40" /></div>
+  } @else {
+    <div class="tarjetas">
+      @for (producto of productos(); track producto.id) {
+        <mat-card class="tarjeta" (click)="diligenciar(producto)" [class.tarjeta--disabled]="!producto.formularioId">
+          <div class="tarjeta__imagen">
+            @if (imagen(producto); as url) {
+              <img [src]="url" [alt]="producto.nombre" />
+            } @else {
+              <mat-icon>inventory_2</mat-icon>
+            }
+          </div>
+          <mat-card-content>
+            <h3>{{ producto.nombre }}</h3>
+            @if (producto.descripcion) { <p>{{ producto.descripcion }}</p> }
+            <span class="tarjeta__formulario">{{ producto.formularioNombre ?? 'Sin formulario' }}</span>
+          </mat-card-content>
+        </mat-card>
+      } @empty {
+        <p class="vacio">No hay productos disponibles.</p>
+      }
+    </div>
+  }
+</section>

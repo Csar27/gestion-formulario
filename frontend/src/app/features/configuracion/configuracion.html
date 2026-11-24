@@ -1,0 +1,41 @@
+<section class="configuracion">
+  <header class="configuracion__encabezado">
+    <div>
+      <h1>Configuración</h1>
+      <p>Administración de módulos del sistema.</p>
+    </div>
+  </header>
+
+  <div class="tarjetas">
+    <a mat-card class="tarjeta" routerLink="/app/configuracion/productos" *hasPermission="PERMISOS.productosVer">
+      <mat-icon>inventory_2</mat-icon>
+      <strong>Productos</strong>
+      <span>Gestión de productos e imágenes</span>
+    </a>
+    <a mat-card class="tarjeta" routerLink="/app/formularios" *hasPermission="PERMISOS.formulariosVer">
+      <mat-icon>description</mat-icon>
+      <strong>Formularios</strong>
+      <span>Diseño y administración</span>
+    </a>
+    <a mat-card class="tarjeta" routerLink="/app/catalogos" *hasPermission="PERMISOS.catalogosVer">
+      <mat-icon>list_alt</mat-icon>
+      <strong>Catálogos</strong>
+      <span>Listas y jerarquías</span>
+    </a>
+    <a mat-card class="tarjeta" routerLink="/app/roles" *hasPermission="PERMISOS.rolesVer">
+      <mat-icon>admin_panel_settings</mat-icon>
+      <strong>Roles</strong>
+      <span>Permisos por rol</span>
+    </a>
+    <a mat-card class="tarjeta" routerLink="/app/usuarios" *hasPermission="PERMISOS.usuariosVer">
+      <mat-icon>people</mat-icon>
+      <strong>Usuarios</strong>
+      <span>Gestión de usuarios</span>
+    </a>
+    <a mat-card class="tarjeta" routerLink="/app/reportes" *hasPermission="PERMISOS.reportesVer">
+      <mat-icon>analytics</mat-icon>
+      <strong>Reportes</strong>
+      <span>Consultas y exportaciones</span>
+    </a>
+  </div>
+</section>

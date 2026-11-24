@@ -1,0 +1,54 @@
+<div class="cabecera">
+  <div>
+    <h1>Mis formularios</h1>
+    <p>Formularios habilitados para tu usuario. Ábrelos para diligenciarlos o continuar un borrador.</p>
+  </div>
+</div>
+
+@if (cargando()) {
+  <div class="cargando"><mat-spinner diameter="40" /></div>
+} @else {
+  <div class="tarjetas">
+    @for (item of items(); track item.formulario.id) {
+      <mat-card appearance="outlined" class="tarjeta">
+        <mat-card-header>
+          <mat-card-title>{{ item.formulario.nombre }}</mat-card-title>
+          <mat-card-subtitle>
+            {{ item.formulario.secciones.length }} secciones ·
+            {{ item.formulario.secciones.reduce(totalCampos, 0) }} campos
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="etiquetas">
+            @if (item.formulario.esPasoAPaso) {
+              <span class="etiqueta paso">Por pasos</span>
+            }
+            @if (item.tieneBorrador) {
+              <span class="etiqueta borrador">Borrador pendiente</span>
+            }
+          </div>
+          <div class="accesos">
+            <span>Acceso:</span>
+            @for (acceso of item.accesos; track acceso) {
+              <span class="rol">{{ acceso }}</span>
+            }
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <a
+            mat-flat-button
+            color="primary"
+            [routerLink]="['/app/mis-formularios', item.formulario.id, 'llenar']"
+          >
+            <mat-icon>{{ item.tieneBorrador ? 'play_arrow' : 'edit_note' }}</mat-icon>
+            {{ item.tieneBorrador ? 'Continuar' : 'Empezar' }}
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    } @empty {
+      <mat-card appearance="outlined" class="vacio">
+        <mat-card-content>No tienes formularios asignados en este momento.</mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

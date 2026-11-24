@@ -1,0 +1,35 @@
+.configuracion {
+  padding: 28px;
+  background: var(--gf-surface);
+  min-height: 100%;
+
+  &__encabezado {
+    margin-bottom: 24px;
+
+    h1 { margin: 0; font-size: 26px; font-weight: 700; color: var(--gf-text); }
+    p { margin: 6px 0 0; color: var(--gf-muted); }
+  }
+
+  .tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  .tarjeta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--gf-text);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+
+    &:hover { transform: translateY(-4px); }
+
+    mat-icon { font-size: 2rem; width: 2rem; height: 2rem; color: var(--gf-navy-light); }
+    strong { font-size: 1.1rem; }
+    span { color: var(--gf-muted); font-size: 13px; }
+  }
+}

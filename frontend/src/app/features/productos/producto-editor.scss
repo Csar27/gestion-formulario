@@ -1,0 +1,92 @@
+.editor {
+  padding: 28px;
+  background: var(--gf-surface);
+  min-height: 100%;
+
+  &__encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 { margin: 0; font-size: 26px; font-weight: 700; color: var(--gf-text); }
+    p { margin: 6px 0 0; color: var(--gf-muted); }
+  }
+
+  .formulario {
+    max-width: 900px;
+  }
+
+  .formulario-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .formulario-imagen {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--gf-border);
+    border-radius: 12px;
+    background: var(--gf-card);
+
+    img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    mat-icon {
+      font-size: 4rem;
+      width: 4rem;
+      height: 4rem;
+      color: var(--gf-muted);
+    }
+
+    .cargar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--gf-navy-light);
+      font-weight: 600;
+
+      input { display: none; }
+    }
+  }
+
+  .formulario-campos {
+    display: grid;
+    gap: 4px;
+  }
+
+  .mat-mdc-form-field {
+    margin: 0 !important;
+    --mat-form-field-container-vertical-padding: 0;
+  }
+
+  .mat-mdc-card-content {
+    padding: 1rem !important;
+  }
+
+  .completo { width: 100%; }
+
+  .acciones {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .cargando { display: flex; justify-content: center; padding: 48px; }
+
+  @media (max-width: 700px) {
+    .formulario-grid { grid-template-columns: 1fr; }
+  }
+}

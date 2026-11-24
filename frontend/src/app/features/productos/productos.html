@@ -1,0 +1,46 @@
+<section class="productos">
+  <header class="productos__encabezado">
+    <div>
+      <h1>Productos</h1>
+      <p>Cada producto puede tener un formulario asociado y una imagen.</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="abrirNuevo()" *hasPermission="'Productos.Crear'">
+      <mat-icon>add</mat-icon>
+      Nuevo producto
+    </button>
+  </header>
+
+  @if (cargando()) {
+    <div class="cargando"><mat-spinner diameter="36" /></div>
+  } @else {
+    <div class="tarjetas">
+      @for (producto of productos(); track producto.id) {
+        <mat-card class="tarjeta">
+          <div class="tarjeta__imagen">
+            @if (imagen(producto); as url) {
+              <img [src]="url" [alt]="producto.nombre" />
+            } @else {
+              <mat-icon>image</mat-icon>
+            }
+            <label class="tarjeta__cargar" *hasPermission="'Productos.Editar'">
+              <input type="file" accept="image/*" (change)="subirImagen(producto, $event)" [disabled]="subiendoImagen() === producto.id" />
+              <mat-icon>photo_camera</mat-icon>
+            </label>
+          </div>
+          <mat-card-content>
+            <h3>{{ producto.nombre }}</h3>
+            @if (producto.descripcion) { <p>{{ producto.descripcion }}</p> }
+            <span class="tarjeta__formulario">{{ producto.formularioNombre ?? 'Sin formulario' }}</span>
+            @if (!producto.activo) { <span class="etiqueta">Inactivo</span> }
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-icon-button (click)="editar(producto)" *hasPermission="'Productos.Editar'"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button (click)="eliminar(producto)" *hasPermission="'Productos.Eliminar'"><mat-icon>delete</mat-icon></button>
+          </mat-card-actions>
+        </mat-card>
+      } @empty {
+        <p class="vacio">No hay productos registrados.</p>
+      }
+    </div>
+  }
+</section>

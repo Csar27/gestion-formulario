@@ -1,0 +1,43 @@
+<section class="historial">
+  <header class="historial__encabezado">
+    <div>
+      <h1>Historial de cambios</h1>
+      <p>Valores modificados en la respuesta.</p>
+    </div>
+    <button mat-stroked-button (click)="volver()">Volver</button>
+  </header>
+
+  @if (cargando()) {
+    <div class="cargando"><mat-spinner diameter="40" /></div>
+  } @else {
+    <mat-card>
+      <table mat-table [dataSource]="datos()" class="tabla">
+        <ng-container matColumnDef="campo">
+          <th mat-header-cell *matHeaderCellDef>Campo</th>
+          <td mat-cell *matCellDef="let fila">{{ fila.etiqueta }}</td>
+        </ng-container>
+        <ng-container matColumnDef="anterior">
+          <th mat-header-cell *matHeaderCellDef>Valor anterior</th>
+          <td mat-cell *matCellDef="let fila">{{ fila.valorAnteriorTexto || fila.valorAnterior || '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="nuevo">
+          <th mat-header-cell *matHeaderCellDef>Valor nuevo</th>
+          <td mat-cell *matCellDef="let fila">{{ fila.valorNuevoTexto || fila.valorNuevo }}</td>
+        </ng-container>
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef>Fecha</th>
+          <td mat-cell *matCellDef="let fila">{{ fila.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="usuario">
+          <th mat-header-cell *matHeaderCellDef>Usuario</th>
+          <td mat-cell *matCellDef="let fila">{{ fila.usuarioId }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let fila; columns: columnas"></tr>
+      </table>
+      @if (datos().length === 0) {
+        <div class="vacio">No hay cambios registrados.</div>
+      }
+    </mat-card>
+  }
+</section>

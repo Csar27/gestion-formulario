@@ -1,0 +1,125 @@
+<section class="reportes">
+  <header class="reportes__encabezado">
+    <div>
+      <h1>Reportes de formularios</h1>
+      <p>Consulta, filtra y exporta las respuestas guardadas. Los valores de listas se muestran con su texto histórico.</p>
+    </div>
+    <div class="reportes__acciones">
+      <button mat-stroked-button color="primary" (click)="exportar('excel')" [disabled]="cargando()">
+        <mat-icon>table_view</mat-icon>
+        Excel
+      </button>
+      <button mat-flat-button color="primary" (click)="exportar('pdf')" [disabled]="cargando()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        PDF
+      </button>
+    </div>
+  </header>
+
+  <mat-card class="reportes__filtros">
+    <div class="filtros">
+      <mat-form-field appearance="outline">
+        <mat-label>Formulario</mat-label>
+        <mat-select [value]="filtroFormularioId()" (selectionChange)="alCambiarFormulario($event.value)">
+          <mat-option value="">Todos</mat-option>
+          @for (formulario of formularios(); track formulario.id) {
+            <mat-option [value]="formulario.id">{{ formulario.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <mat-select [value]="filtroEstado()" (selectionChange)="filtroEstado.set($event.value)">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="Borrador">Borrador</mat-option>
+          <mat-option value="Completa">Completa</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput type="date" [value]="filtroDesde()" (input)="filtroDesde.set(($any($event.target)).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput type="date" [value]="filtroHasta()" (input)="filtroHasta.set(($any($event.target)).value)" />
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" (click)="consultar(1)" [disabled]="cargando()">
+        <mat-icon>search</mat-icon>
+        Buscar
+      </button>
+    </div>
+  </mat-card>
+
+  @if (cargando()) {
+    <div class="reportes__cargando">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <div class="reportes__tabla-contenedor">
+      <table mat-table [dataSource]="datos()" class="reportes__tabla">
+        <ng-container matColumnDef="formulario">
+          <th mat-header-cell *matHeaderCellDef>Formulario</th>
+          <td mat-cell *matCellDef="let fila">{{ fila.formularioNombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef>Fecha</th>
+          <td mat-cell *matCellDef="let fila">{{ fila.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="usuario">
+          <th mat-header-cell *matHeaderCellDef>Usuario</th>
+          <td mat-cell *matCellDef="let fila">{{ fila.usuarioNombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let fila">
+            <span class="estado" [class.estado--completa]="fila.estado === 'Completa'">{{ fila.estado }}</span>
+          </td>
+        </ng-container>
+
+        @for (campo of campos(); track campo.id) {
+          <ng-container [matColumnDef]="campo.id">
+            <th mat-header-cell *matHeaderCellDef>{{ campo.etiqueta }}</th>
+            <td mat-cell *matCellDef="let fila">{{ valorCampo(fila, campo.id) }}</td>
+          </ng-container>
+        }
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let fila">
+            <button mat-icon-button type="button" (click)="ver(fila)" title="Ver">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="editar(fila)" title="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="historial(fila)" title="Historial">
+              <mat-icon>history</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let fila; columns: displayedColumns();"></tr>
+      </table>
+
+      @if (datos().length === 0) {
+        <div class="reportes__vacio">No hay respuestas para los filtros seleccionados.</div>
+      }
+    </div>
+
+    <mat-paginator
+      [length]="total()"
+      [pageSize]="tamano()"
+      [pageIndex]="pagina() - 1"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="cambiarPagina($event)">
+    </mat-paginator>
+  }
+</section>

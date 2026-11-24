@@ -1,0 +1,14 @@
+.cabecera { margin-bottom: 1rem; }
+.cabecera h1 { margin: 0; }
+.cabecera p { margin: 0.25rem 0 0; color: var(--mat-sys-on-surface-variant); }
+.cargando { display: flex; justify-content: center; padding: 3rem; }
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: 1rem; }
+.tarjeta { display: flex; flex-direction: column; }
+.tarjeta mat-card-content { flex: 1; }
+.etiquetas { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0; }
+.etiqueta { padding: 0.15rem 0.6rem; border-radius: 1rem; font-size: 0.75rem; }
+.paso { background: var(--mat-sys-secondary-container); }
+.borrador { background: var(--mat-sys-tertiary-container); }
+.accesos { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; font-size: 0.85rem; color: var(--mat-sys-on-surface-variant); }
+.rol { background: var(--mat-sys-surface-container-high); border-radius: 0.5rem; padding: 0.1rem 0.5rem; }
+.vacio { text-align: center; padding: 2rem; }

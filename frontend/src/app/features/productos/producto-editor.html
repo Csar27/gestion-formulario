@@ -1,0 +1,60 @@
+<section class="editor">
+  <header class="editor__encabezado">
+    <div>
+      <h1>{{ editando() ? 'Editar producto' : 'Nuevo producto' }}</h1>
+      <p>Configura el producto y su formulario asociado.</p>
+    </div>
+    <button mat-stroked-button (click)="volver()">Volver</button>
+  </header>
+
+  @if (cargando()) {
+    <div class="cargando"><mat-spinner diameter="40" /></div>
+  } @else {
+    <mat-card class="formulario">
+      <mat-card-content>
+        <div class="formulario-grid">
+          <div class="formulario-imagen">
+            @if (imagen(); as url) {
+              <img [src]="url" [alt]="nombre()" />
+            } @else {
+              <mat-icon>image</mat-icon>
+            }
+            @if (editando()) {
+              <label class="cargar">
+                <input type="file" accept="image/*" (change)="subirImagen($event)" [disabled]="subiendo()" />
+                <mat-icon>photo_camera</mat-icon>
+                {{ subiendo() ? 'Subiendo...' : 'Cambiar imagen' }}
+              </label>
+            }
+          </div>
+          <div class="formulario-campos">
+            <mat-form-field appearance="outline" class="completo">
+              <mat-label>Nombre</mat-label>
+              <input matInput [ngModel]="nombre()" (ngModelChange)="nombre.set($event)" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="completo">
+              <mat-label>Descripción</mat-label>
+              <input matInput [ngModel]="descripcion()" (ngModelChange)="descripcion.set($event)" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="completo">
+              <mat-label>Formulario asociado</mat-label>
+              <mat-select [value]="formularioId()" (selectionChange)="formularioId.set($event.value)">
+                <mat-option value="">Sin formulario</mat-option>
+                @for (formulario of formularios(); track formulario.id) {
+                  <mat-option [value]="formulario.id">{{ formulario.nombre }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-checkbox [checked]="activo()" (change)="activo.set($event.checked)">Activo</mat-checkbox>
+          </div>
+        </div>
+        <div class="acciones">
+          <button mat-stroked-button (click)="volver()">Cancelar</button>
+          <button mat-flat-button color="primary" (click)="guardar()" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

@@ -1,0 +1,223 @@
+﻿<div class="cabecera">
+  <div>
+    <h1>{{ id ? 'Editar formulario' : 'Nuevo formulario' }}</h1>
+    <p>Define secciones, campos y las listas de opciones asociadas.</p>
+  </div>
+  <div class="acciones-cabecera">
+    @if (id) {
+      <a mat-stroked-button [routerLink]="['/app/formularios', id, 'vista-previa']">
+        <mat-icon>visibility</mat-icon> Vista previa
+      </a>
+    }
+    <button mat-stroked-button type="button" (click)="volver()">Volver</button>
+  </div>
+</div>
+
+@if (cargando()) {
+  <div class="cargando"><mat-spinner diameter="40" /></div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="guardar()">
+    <mat-card appearance="outlined" class="bloque">
+      <mat-card-header><mat-card-title>Datos generales</mat-card-title></mat-card-header>
+      <mat-card-content class="datos-generales">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre del formulario</mat-label>
+          <input matInput formControlName="nombre" />
+          @if (form.controls.nombre.hasError('required')) {
+            <mat-error>El nombre es obligatorio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-checkbox formControlName="esPasoAPaso">Guardado por pasos (MatStepper)</mat-checkbox>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Roles con acceso</mat-label>
+          <mat-select formControlName="roles" multiple>
+            @for (rol of roles(); track rol.id) {
+              <mat-option [value]="rol.id">{{ rol.nombre }}</mat-option>
+            }
+          </mat-select>
+          <mat-hint>Sin selección, solo los administradores pueden verlo y llenarlo.</mat-hint>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <div formArrayName="secciones" class="secciones">
+      @for (seccionControl of secciones.controls; let i = $index; track seccionControl) {
+        <mat-card appearance="outlined" class="bloque seccion" [formGroupName]="i">
+          <mat-card-header>
+            <mat-card-title>Sección {{ i + 1 }}</mat-card-title>
+            <div class="herramientas">
+              <button mat-icon-button type="button" matTooltip="Subir" [disabled]="i === 0" (click)="subirSeccion(i)">
+                <mat-icon>arrow_upward</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                matTooltip="Bajar"
+                [disabled]="i === secciones.length - 1"
+                (click)="bajarSeccion(i)"
+              >
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+              <button mat-icon-button type="button" matTooltip="Quitar sección" color="warn" (click)="quitarSeccion(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="titulo-seccion">
+              <mat-label>Título de la sección</mat-label>
+              <input matInput formControlName="titulo" />
+            </mat-form-field>
+
+            <mat-divider />
+
+            <div formArrayName="campos" class="campos">
+              @for (campoControl of campos(i).controls; let j = $index; track campoControl) {
+                <div class="campo" [formGroupName]="j">
+                  <div class="campo-cabecera">
+                    <span class="numero">{{ i + 1 }}.{{ j + 1 }}</span>
+                    <div class="herramientas">
+                      <button mat-icon-button type="button" matTooltip="Subir campo" [disabled]="j === 0" (click)="subirCampo(i, j)">
+                        <mat-icon>arrow_upward</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        type="button"
+                        matTooltip="Bajar campo"
+                        [disabled]="j === campos(i).length - 1"
+                        (click)="bajarCampo(i, j)"
+                      >
+                        <mat-icon>arrow_downward</mat-icon>
+                      </button>
+                      <button mat-icon-button type="button" matTooltip="Quitar campo" color="warn" (click)="quitarCampo(i, j)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="campo-grid">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Etiqueta</mat-label>
+                      <input matInput formControlName="etiqueta" />
+                      @if (campo(i, j).controls['etiqueta'].hasError('required')) {
+                        <mat-error>La etiqueta es obligatoria.</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Tipo</mat-label>
+                      <mat-select formControlName="tipo" (selectionChange)="alCambiarTipo(campo(i, j))">
+                        @for (tipo of tipos; track tipo) {
+                          <mat-option [value]="tipo">{{ tipo }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="campo-pequeno">
+                      <mat-label>Orden</mat-label>
+                      <input matInput type="number" formControlName="orden" />
+                    </mat-form-field>
+
+                    <mat-checkbox formControlName="requerido">Requerido</mat-checkbox>
+                  </div>
+
+                  @if (['Entero', 'Decimal', 'Moneda', 'Porcentaje'].includes(campo(i, j).controls['tipo'].value)) {
+                    <div class="campo-grid">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Mínimo</mat-label>
+                        <input matInput type="number" formControlName="min" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Máximo</mat-label>
+                        <input matInput type="number" formControlName="max" />
+                      </mat-form-field>
+                    </div>
+                  }
+
+                  @if (esLista(campo(i, j))) {
+                    <div class="campo-grid">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Origen de opciones</mat-label>
+                        <mat-select formControlName="fuenteOpciones" (selectionChange)="alCambiarFuente(campo(i, j))">
+                          <mat-option value="Manual">Lista manual</mat-option>
+                          <mat-option value="Catalogo">Catálogo</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+
+                    @if (esCatalogo(campo(i, j))) {
+                      <div class="campo-grid">
+                        <mat-form-field appearance="outline">
+                          <mat-label>Catálogo</mat-label>
+                          <mat-select formControlName="catalogoId">
+                            @for (catalogo of catalogos(); track catalogo.id) {
+                              <mat-option [value]="catalogo.id">{{ catalogo.nombre }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                          <mat-label>Campo padre (dependiente)</mat-label>
+                          <mat-select formControlName="campoPadreId">
+                            <mat-option [value]="null">Sin dependencia</mat-option>
+                            @for (padre of camposComoPadre(campo(i, j)); track padre.id) {
+                              <mat-option [value]="padre.id">{{ padre.etiqueta }}</mat-option>
+                            }
+                          </mat-select>
+                          <mat-hint>Requiere catálogos padre/hijo configurados.</mat-hint>
+                        </mat-form-field>
+
+                        <button mat-stroked-button type="button" class="boton-probar" (click)="probarOpciones(campo(i, j))">
+                          <mat-icon>visibility</mat-icon>
+                          Probar opciones
+                        </button>
+                      </div>
+                    } @else {
+                      <div formArrayName="opciones" class="opciones">
+                        <div class="opciones-titulo">
+                          <span>Opciones manuales</span>
+                          <button mat-stroked-button type="button" (click)="agregarOpcion(campo(i, j))">
+                            <mat-icon>add</mat-icon> Añadir opción
+                          </button>
+                        </div>
+                        @for (opcionControl of opciones(campo(i, j)).controls; let k = $index; track opcionControl) {
+                          <div class="opcion" [formGroupName]="k">
+                            <mat-form-field appearance="outline">
+                              <mat-label>Valor</mat-label>
+                              <input matInput formControlName="valor" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline">
+                              <mat-label>Etiqueta</mat-label>
+                              <input matInput formControlName="etiqueta" />
+                            </mat-form-field>
+                            <button mat-icon-button type="button" color="warn" (click)="quitarOpcion(campo(i, j), k)">
+                              <mat-icon>close</mat-icon>
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              }
+
+              <button mat-stroked-button type="button" class="anadir" (click)="agregarCampo(i)">
+                <mat-icon>add</mat-icon> Añadir campo
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <div class="acciones-finales">
+      <button mat-stroked-button type="button" (click)="agregarSeccion()"><mat-icon>add</mat-icon> Añadir sección</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : 'Guardar formulario' }}
+      </button>
+    </div>
+  </form>
+}
+

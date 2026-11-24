@@ -1,0 +1,85 @@
+.productos {
+  padding: 28px;
+  background: var(--gf-surface);
+  min-height: 100%;
+
+  &__encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 { margin: 0; font-size: 26px; font-weight: 700; color: var(--gf-text); }
+    p { margin: 6px 0 0; color: var(--gf-muted); }
+  }
+
+  .tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .tarjeta {
+    overflow: hidden;
+
+    &__imagen {
+      position: relative;
+      height: 180px;
+      background: var(--gf-border);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      mat-icon {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+        color: var(--gf-muted);
+      }
+    }
+
+    &__cargar {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 6px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+
+      input { display: none; }
+      mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+    }
+
+    mat-card-content {
+      h3 { margin: 0 0 6px; color: var(--gf-text); }
+      p { margin: 0 0 8px; color: var(--gf-muted); font-size: 13px; }
+    }
+
+    &__formulario {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--gf-border);
+      color: var(--gf-text);
+      font-size: 12px;
+    }
+  }
+
+  .formulario { margin-bottom: 24px; }
+  .completo { width: 100%; }
+  .acciones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+  .cargando { display: flex; justify-content: center; padding: 48px; }
+  .vacio { text-align: center; padding: 24px; color: var(--gf-muted); }
+  .etiqueta { margin-left: 0.5rem; padding: 0.1rem 0.5rem; border-radius: 1rem; background: var(--mat-sys-error-container); font-size: 0.75rem; }
+}

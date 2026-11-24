@@ -1,0 +1,102 @@
+<section class="dashboard">
+  <header class="dashboard__encabezado">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Resumen de respuestas y formularios.</p>
+    </div>
+    <button mat-stroked-button (click)="irReportes()">Ver reportes</button>
+  </header>
+
+  <div class="filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Formulario</mat-label>
+      <mat-select [value]="filtroFormularioId()" (selectionChange)="filtroFormularioId.set($event.value)">
+        <mat-option value="">Todos</mat-option>
+        @for (formulario of formularios(); track formulario.id) {
+          <mat-option [value]="formulario.id">{{ formulario.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [value]="filtroDesde()" (input)="filtroDesde.set(($any($event.target)).value)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [value]="filtroHasta()" (input)="filtroHasta.set(($any($event.target)).value)" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" (click)="cargar()">Aplicar</button>
+  </div>
+
+  @if (cargando()) {
+    <div class="cargando"><mat-spinner diameter="40" /></div>
+  } @else if (datos(); as d) {
+    <div class="tarjetas">
+      <mat-card class="tarjeta">
+        <mat-card-content>
+          <mat-icon>assignment</mat-icon>
+          <strong>{{ d.totalRespuestas }}</strong>
+          <span>Total respuestas</span>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="tarjeta">
+        <mat-card-content>
+          <mat-icon>edit_note</mat-icon>
+          <strong>{{ d.borradores }}</strong>
+          <span>Borradores</span>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="tarjeta">
+        <mat-card-content>
+          <mat-icon>check_circle</mat-icon>
+          <strong>{{ d.completas }}</strong>
+          <span>Completas</span>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card class="grafico-card">
+      <mat-card-header><mat-card-title>Respuestas por formulario</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="barras">
+          @for (fila of d.porFormulario; track fila.formularioId) {
+            <div class="barra-fila">
+              <span class="barra-nombre">{{ fila.nombre }}</span>
+              <div class="barra-track">
+                <div class="barra-completas" [style.width.%]="porcentaje(fila.completas)"></div>
+                <div class="barra-borradores" [style.width.%]="porcentaje(fila.borradores)"></div>
+              </div>
+              <span class="barra-total">{{ fila.total }}</span>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="tabla-card">
+      <mat-card-header><mat-card-title>Detalle</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="d.porFormulario" class="tabla">
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>Formulario</th>
+            <td mat-cell *matCellDef="let fila">{{ fila.nombre }}</td>
+          </ng-container>
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef>Total</th>
+            <td mat-cell *matCellDef="let fila">{{ fila.total }}</td>
+          </ng-container>
+          <ng-container matColumnDef="borradores">
+            <th mat-header-cell *matHeaderCellDef>Borradores</th>
+            <td mat-cell *matCellDef="let fila">{{ fila.borradores }}</td>
+          </ng-container>
+          <ng-container matColumnDef="completas">
+            <th mat-header-cell *matHeaderCellDef>Completas</th>
+            <td mat-cell *matCellDef="let fila">{{ fila.completas }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+          <tr mat-row *matRowDef="let fila; columns: columnas"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

@@ -1,0 +1,92 @@
+.dashboard {
+  padding: 28px;
+  background: var(--gf-surface);
+  min-height: 100%;
+
+  &__encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 { margin: 0; font-size: 26px; font-weight: 700; color: var(--gf-text); }
+    p { margin: 6px 0 0; color: var(--gf-muted); }
+  }
+
+  .filtros {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .tarjeta mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+
+    mat-icon { color: var(--gf-navy-light); font-size: 2rem; width: 2rem; height: 2rem; }
+    strong { font-size: 2rem; color: var(--gf-text); }
+    span { color: var(--gf-muted); }
+  }
+
+  .grafico-card, .tabla-card { margin-top: 16px; }
+
+  .barras {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .barra-fila {
+    display: grid;
+    grid-template-columns: 180px 1fr 48px;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .barra-nombre {
+    color: var(--gf-text);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .barra-track {
+    display: flex;
+    height: 18px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--gf-border);
+  }
+
+  .barra-completas {
+    background: #22c55e;
+    height: 100%;
+  }
+
+  .barra-borradores {
+    background: #f59e0b;
+    height: 100%;
+  }
+
+  .barra-total {
+    color: var(--gf-muted);
+    font-size: 13px;
+    text-align: right;
+  }
+
+  .tabla { width: 100%; }
+  .cargando { display: flex; justify-content: center; padding: 48px; }
+}

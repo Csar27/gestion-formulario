@@ -1,0 +1,113 @@
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$blue-palette,
+      tertiary: mat.$cyan-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+:root {
+  --gf-navy: #1f3864;
+  --gf-navy-light: #2e5496;
+  --gf-surface: #f4f6f9;
+  --gf-card: #ffffff;
+  --gf-border: #d9e0ea;
+  --gf-text: #26324a;
+  --gf-muted: #596579;
+
+  --mat-sys-primary: #1f3864;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #dce6f5;
+  --mat-sys-on-primary-container: #102a4c;
+  --mat-sys-secondary: #4f6b8a;
+  --mat-sys-on-secondary: #ffffff;
+  --mat-sys-secondary-container: #e8eef5;
+  --mat-sys-on-secondary-container: #1f3864;
+  --mat-sys-tertiary: #2e5496;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-tertiary-container: #e3ecf8;
+  --mat-sys-on-tertiary-container: #1f3864;
+  --mat-sys-surface: #f4f6f9;
+  --mat-sys-surface-container: #ffffff;
+  --mat-sys-surface-container-low: #f8fafc;
+  --mat-sys-surface-container-high: #eef2f7;
+  --mat-sys-outline: #b7c2d0;
+  --mat-sys-outline-variant: #d9e0ea;
+  --mat-sys-on-surface: #26324a;
+  --mat-sys-on-surface-variant: #596579;
+  --mat-sys-background: #f4f6f9;
+  --mat-sys-on-background: #26324a;
+}
+
+.dark {
+  --gf-navy: #3b82f6;
+  --gf-navy-light: #60a5fa;
+  --gf-surface: #0f172a;
+  --gf-card: #1e293b;
+  --gf-border: #334155;
+  --gf-text: #e5e7eb;
+  --gf-muted: #94a3b8;
+
+  --mat-sys-primary: #3b82f6;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #1e3a8a;
+  --mat-sys-on-primary-container: #dbeafe;
+  --mat-sys-secondary: #475569;
+  --mat-sys-on-secondary: #ffffff;
+  --mat-sys-secondary-container: #1e293b;
+  --mat-sys-on-secondary-container: #e5e7eb;
+  --mat-sys-tertiary: #0ea5e9;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-tertiary-container: #0c4a6e;
+  --mat-sys-on-tertiary-container: #e0f2fe;
+  --mat-sys-surface: #0f172a;
+  --mat-sys-surface-container: #1e293b;
+  --mat-sys-surface-container-low: #111827;
+  --mat-sys-surface-container-high: #334155;
+  --mat-sys-outline: #475569;
+  --mat-sys-outline-variant: #334155;
+  --mat-sys-on-surface: #e5e7eb;
+  --mat-sys-on-surface-variant: #94a3b8;
+  --mat-sys-background: #0f172a;
+  --mat-sys-on-background: #e5e7eb;
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--gf-surface);
+  color: var(--gf-text);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+}
+
+.dark body,
+body.dark {
+  color-scheme: dark;
+}
+
+.mat-mdc-card {
+  border-radius: 12px !important;
+  border: 1px solid var(--gf-border) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+.dark .mat-mdc-card {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-flat-button {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
+.mat-mdc-stroked-button {
+  border-radius: 8px !important;
+}

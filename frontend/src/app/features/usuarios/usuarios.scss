@@ -1,0 +1,23 @@
+.usuarios {
+  padding: 28px;
+  background: var(--gf-surface);
+  min-height: 100%;
+
+  &__encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 { margin: 0; font-size: 26px; font-weight: 700; color: var(--gf-text); }
+    p { margin: 6px 0 0; color: var(--gf-muted); }
+  }
+
+  .tabla { width: 100%; }
+  .completo { width: 100%; }
+  .formulario { margin-bottom: 24px; }
+  .roles { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .acciones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+  .cargando { display: flex; justify-content: center; padding: 48px; }
+}

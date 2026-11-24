@@ -37,69 +37,82 @@ const FORMATOS_FECHA: MatDateFormats = {
   ],
   providers: [provideNativeDateAdapter(FORMATOS_FECHA), { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }],
   template: `
-    <mat-form-field appearance="outline" class="campo">
-      <mat-label>{{ campo.etiqueta }}{{ campo.requerido ? ' *' : '' }}</mat-label>
+    @if (campo.tipo === 'Archivo') {
+      <div class="campo-archivo">
+        <label class="campo-etiqueta">{{ campo.etiqueta }}{{ campo.requerido ? ' *' : '' }}</label>
+        <input type="file" (change)="subir($event)" />
+        @if (control.value) {
+          <a [href]="urlArchivo(control.value)" target="_blank" class="archivo-enlace">
+            <mat-icon>attach_file</mat-icon>
+            Ver archivo adjunto
+          </a>
+        }
+      </div>
+    } @else {
+      <mat-form-field appearance="outline" class="campo">
+        <mat-label>{{ campo.etiqueta }}{{ campo.requerido ? ' *' : '' }}</mat-label>
 
-      @switch (campo.tipo) {
-        @case ('Lista') {
-          <mat-select [formControl]="control">
-            @for (opcion of opciones; track opcion.valor) {
-              <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
-            }
-          </mat-select>
+        @switch (campo.tipo) {
+          @case ('Lista') {
+            <mat-select [formControl]="control">
+              @for (opcion of opciones; track opcion.valor) {
+                <mat-option [value]="opcion.valor">{{ opcion.etiqueta }}</mat-option>
+              }
+            </mat-select>
+          }
+          @case ('Entero') {
+            <input matInput type="number" step="1" [formControl]="control" />
+          }
+          @case ('Decimal') {
+            <input matInput type="number" step="0.01" [formControl]="control" />
+          }
+          @case ('Moneda') {
+            <input matInput type="number" step="0.01" [formControl]="control" />
+          }
+          @case ('Porcentaje') {
+            <input matInput type="number" step="0.01" min="0" max="100" [formControl]="control" />
+          }
+          @case ('Email') {
+            <input matInput type="email" [formControl]="control" />
+          }
+          @case ('Fecha') {
+            <input matInput [matDatepicker]="selectorFecha" [formControl]="control" />
+          }
+          @case ('Hora') {
+            <input matInput type="time" [formControl]="control" />
+          }
+          @default {
+            <input matInput type="text" [formControl]="control" />
+          }
         }
-        @case ('Entero') {
-          <input matInput type="number" step="1" [formControl]="control" />
-        }
-        @case ('Decimal') {
-          <input matInput type="number" step="0.01" [formControl]="control" />
-        }
-        @case ('Moneda') {
-          <input matInput type="number" step="0.01" [formControl]="control" />
-        }
-        @case ('Porcentaje') {
-          <input matInput type="number" step="0.01" min="0" max="100" [formControl]="control" />
-        }
-        @case ('Email') {
-          <input matInput type="email" [formControl]="control" />
-        }
-        @case ('Fecha') {
-          <input matInput [matDatepicker]="selectorFecha" [formControl]="control" />
-        }
-        @case ('Hora') {
-          <input matInput type="time" [formControl]="control" />
-        }
-        @case ('Archivo') {
-          <input type="file" (change)="subir($event)" />
-        }
-        @default {
-          <input matInput type="text" [formControl]="control" />
-        }
-      }
 
-      @if (campo.tipo === 'Archivo' && control.value) {
-        <a [href]="urlArchivo(control.value)" target="_blank" matSuffix>
-          <mat-icon>attach_file</mat-icon>
-        </a>
-      }
+        @if (campo.tipo === 'Fecha') {
+          <mat-datepicker-toggle matIconSuffix [for]="selectorFecha"></mat-datepicker-toggle>
+        }
+        <mat-datepicker #selectorFecha></mat-datepicker>
 
-      @if (campo.tipo === 'Fecha') {
-        <mat-datepicker-toggle matIconSuffix [for]="selectorFecha"></mat-datepicker-toggle>
-      }
-      <mat-datepicker #selectorFecha></mat-datepicker>
-
-      @if (control.hasError('required')) {
-        <mat-error>Este campo es obligatorio.</mat-error>
-      }
-      @if (control.hasError('email') || control.hasError('pattern')) {
-        <mat-error>El formato del valor no es válido.</mat-error>
-      }
-      @if (control.hasError('matDatepickerParse')) {
-        <mat-error>Introduce una fecha válida.</mat-error>
-      }
-    </mat-form-field>
+        @if (control.hasError('required')) {
+          <mat-error>Este campo es obligatorio.</mat-error>
+        }
+        @if (control.hasError('email') || control.hasError('pattern')) {
+          <mat-error>El formato del valor no es válido.</mat-error>
+        }
+        @if (control.hasError('matDatepickerParse')) {
+          <mat-error>Introduce una fecha válida.</mat-error>
+        }
+      </mat-form-field>
+    }
   `,
-  styles: ['.campo, .mat-mdc-form-field { margin: 0 !important; width: 100%; } .mat-mdc-text-field-wrapper { padding-top: 0 !important; padding-bottom: 0 !important; } .mat-mdc-form-field-subscript-wrapper { min-height: 0 !important; height: auto !important; }'],
+  styles: [
+    `.campo, .mat-mdc-form-field { margin: 0 !important; width: 100%; }
+     .mat-mdc-text-field-wrapper { padding-top: 0 !important; padding-bottom: 0 !important; }
+     .mat-mdc-form-field-subscript-wrapper { min-height: 0 !important; height: auto !important; }
+     .campo-archivo { display: grid; gap: 0.35rem; width: 100%; }
+     .campo-etiqueta { font-size: 0.85rem; color: var(--mat-sys-on-surface-variant); }
+     .campo-archivo input { font: inherit; }
+     .archivo-enlace { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--mat-sys-primary); text-decoration: none; }
+     .archivo-enlace mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }`,
+  ],
 })
 export class CampoRendererComponent {
   @Input({ required: true }) campo!: CampoDto;

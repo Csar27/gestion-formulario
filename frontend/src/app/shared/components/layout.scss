@@ -41,7 +41,14 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
-.menu-lateral .activo mat-icon {
+.menu-lateral .mdc-list-item__primary-text,
+.menu-lateral .mat-mdc-list-item-title {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.menu-lateral .activo mat-icon,
+.menu-lateral .activo .mdc-list-item__primary-text,
+.menu-lateral .activo .mat-mdc-list-item-title {
   color: #ffffff;
 }
 

@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MAT_DATE_LOCALE, MatDateFormats, provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,10 +13,29 @@ import { environment } from '../../../environments/environment';
 import { CampoDto, OpcionDto } from '../../core/models/api.models';
 import { ArchivosService } from '../../core/services/archivos.service';
 
+const FORMATOS_FECHA: MatDateFormats = {
+  parse: { dateInput: 'YYYY-MM-DD' },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMM Y',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM Y',
+  },
+};
+
 @Component({
   selector: 'app-campo-renderer',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
+  providers: [provideNativeDateAdapter(FORMATOS_FECHA), { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }],
   template: `
     <mat-form-field appearance="outline" class="campo">
       <mat-label>{{ campo.etiqueta }}{{ campo.requerido ? ' *' : '' }}</mat-label>
@@ -45,7 +64,7 @@ import { ArchivosService } from '../../core/services/archivos.service';
           <input matInput type="email" [formControl]="control" />
         }
         @case ('Fecha') {
-          <input matInput type="date" [formControl]="control" />
+          <input matInput [matDatepicker]="selectorFecha" [formControl]="control" />
         }
         @case ('Hora') {
           <input matInput type="time" [formControl]="control" />
@@ -64,11 +83,19 @@ import { ArchivosService } from '../../core/services/archivos.service';
         </a>
       }
 
+      @if (campo.tipo === 'Fecha') {
+        <mat-datepicker-toggle matIconSuffix [for]="selectorFecha"></mat-datepicker-toggle>
+      }
+      <mat-datepicker #selectorFecha></mat-datepicker>
+
       @if (control.hasError('required')) {
         <mat-error>Este campo es obligatorio.</mat-error>
       }
       @if (control.hasError('email') || control.hasError('pattern')) {
         <mat-error>El formato del valor no es válido.</mat-error>
+      }
+      @if (control.hasError('matDatepickerParse')) {
+        <mat-error>Introduce una fecha válida.</mat-error>
       }
     </mat-form-field>
   `,

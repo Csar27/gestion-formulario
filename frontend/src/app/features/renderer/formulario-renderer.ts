@@ -24,6 +24,26 @@ import { FormulariosService } from '../../core/services/formularios.service';
 import { RespuestasService } from '../../core/services/respuestas.service';
 import { CampoRendererComponent } from '../../shared/components/campo-renderer';
 
+function fechaDesdeIso(valor: unknown): Date | null {
+  if (typeof valor !== 'string') return null;
+  const coincidencia = /^(\d{4})-(\d{2})-(\d{2})$/.exec(valor);
+  if (!coincidencia) return null;
+  const fecha = new Date(Number(coincidencia[1]), Number(coincidencia[2]) - 1, Number(coincidencia[3]));
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+}
+
+function isoDesdeFecha(fecha: Date): string {
+  const anio = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  return `${anio}-${mes}-${dia}`;
+}
+
+function serializarValor(valor: unknown): string | null {
+  if (valor instanceof Date) return isoDesdeFecha(valor);
+  return valor === null || valor === undefined || valor === '' ? null : String(valor);
+}
+
 @Component({
   selector: 'app-formulario-renderer',
   standalone: true,
@@ -146,7 +166,7 @@ export class FormularioRendererComponent implements OnInit {
     const valores: ValorRequest[] = this.secciones.controls.flatMap((controlSeccion) =>
       Object.entries((controlSeccion as FormGroup).getRawValue()).map(([campoId, valor]) => ({
         campoId,
-        valor: valor === null || valor === undefined || valor === '' ? null : String(valor),
+        valor: serializarValor(valor),
       })),
     );
 
@@ -218,7 +238,9 @@ export class FormularioRendererComponent implements OnInit {
       seccion.campos.forEach((campo) => {
         const valor = respuesta.valores.find((item) => item.campoId === campo.id);
         if (valor) {
-          this.control(indiceSeccion, campo).setValue(valor.valor, { emitEvent: false });
+          const control = this.control(indiceSeccion, campo);
+          const nuevoValor = campo.tipo === 'Fecha' ? fechaDesdeIso(valor.valor) : valor.valor;
+          control.setValue(nuevoValor, { emitEvent: false });
         }
       });
     });
@@ -236,13 +258,10 @@ export class FormularioRendererComponent implements OnInit {
         if (campo.tipo === 'Email') {
           validadores.push(Validators.email);
         }
-        if (campo.tipo === 'Fecha') {
-          validadores.push(Validators.pattern(/^\d{4}-\d{2}-\d{2}$/));
-        }
         if (campo.tipo === 'Hora') {
           validadores.push(Validators.pattern(/^\d{2}:\d{2}$/));
         }
-        controles[campo.id] = this.fb.control<string | null>(null, validadores);
+        controles[campo.id] = this.fb.control(null, validadores);
       });
       this.secciones.push(this.fb.group(controles));
     });

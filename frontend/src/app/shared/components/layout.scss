@@ -37,6 +37,18 @@
   color: #ffffff;
 }
 
+.menu-lateral mat-icon {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.menu-lateral .activo mat-icon {
+  color: #ffffff;
+}
+
+.menu-lateral .marca mat-icon {
+  color: #7dd3fc;
+}
+
 .activo {
   background: rgba(96, 165, 250, 0.22) !important;
   color: #ffffff !important;
@@ -68,6 +80,10 @@
 
   button {
     color: var(--gf-toolbar-fg);
+  }
+
+  mat-icon {
+    color: inherit;
   }
 }
 
